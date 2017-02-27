@@ -27,6 +27,16 @@ namespace details
   {
     throw std::runtime_error("Not implemented!");
   }
+
+  template <typename T>
+  using is_vector = std::is_same<T, std::vector< typename T::value_type,
+                                                 typename T::allocator_type > >;
+
+  template <typename T>
+  using is_map = std::is_same<T, std::map< typename T::key_type,
+                                           typename T::mapped_type,
+                                           typename T::key_compare,
+                                           typename T::allocator_type > >;
 }
 
 struct ParametersBase {
@@ -85,7 +95,8 @@ struct ParametersBase {
   }
 
   template<typename T>
-  void testMin(const std::string key, T& val, T min = std::numeric_limits<T>::min()){
+  typename std::enable_if<std::is_arithmetic<T>::value, void>::type
+  testMin(const std::string key, T& val, T min = std::numeric_limits<T>::min()){
     if (val < min){
       ROS_WARN_STREAM("Value of " << val << " for "
                       << key << " is smaller than minimal allowed value. Correcting value to min=" << min);
@@ -94,12 +105,37 @@ struct ParametersBase {
   }
 
   template<typename T>
-  void testMax(const std::string key, T& val, T max = std::numeric_limits<T>::max()){
+  typename std::enable_if<details::is_vector<T>::value && std::is_arithmetic<typename T::value_type>::value, void>::type
+  testMin(const std::string key, T& val, typename T::value_type min = std::numeric_limits<typename T::value_type>::min()){
+    for (auto& v : val) testMin(key, v, min);
+  }
+
+  template<typename T>
+  typename std::enable_if<details::is_map<T>::value && std::is_arithmetic<typename T::mapped_type>::value, void>::type
+  testMin(const std::string key, T& val, typename T::mapped_type min = std::numeric_limits<typename T::mapped_type>::min()){
+    for (auto& v : val) testMin(key, v.second, min);
+  }
+
+  template<typename T>
+  typename std::enable_if<std::is_arithmetic<T>::value, void>::type
+  testMax(const std::string key, T& val, T max = std::numeric_limits<T>::max()){
     if (val > max){
       ROS_WARN_STREAM("Value of " << val << " for "
                       << key << " is greater than maximal allowed. Correcting value to max=" << max);
       val = max;
     }
+  }
+
+  template<typename T>
+  typename std::enable_if<details::is_vector<T>::value && std::is_arithmetic<typename T::value_type>::value, void>::type
+  testMax(const std::string key, T& val, typename T::value_type min = std::numeric_limits<typename T::value_type>::max()){
+    for (auto& v : val) testMax(key, v, min);
+  }
+
+  template<typename T>
+  typename std::enable_if<details::is_map<T>::value && std::is_arithmetic<typename T::mapped_type>::value, void>::type
+  testMax(const std::string key, T& val, typename T::mapped_type min = std::numeric_limits<typename T::mapped_type>::max()){
+    for (auto& v : val) testMax(key, v.second, min);
   }
 
   protected:
