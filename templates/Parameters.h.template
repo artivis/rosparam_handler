@@ -88,6 +88,14 @@ $string_representation;
   }
 };
 
+using ${ClassName}ParametersPtr = std::shared_ptr<${ClassName}Parameters>;
+
+/// @todo Ensure safetyness.
+${ClassName}ParametersPtr castParametersPtr(rosparam_handler::ParametersPtr ptr)
+{
+  return std::static_pointer_cast<${ClassName}Parameters>(ptr);
+}
+
 } // namespace ${pkgname}
 
 namespace rosparam_handler {
