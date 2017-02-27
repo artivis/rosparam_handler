@@ -63,14 +63,14 @@ public:
   ${ClassName}Parameters(const ros::NodeHandle& private_node_handle)
   : Base(private_node_handle) {}
 
-  void fromParamServer(){
+  void fromParamServer() override{
 $fromParamServer
 
 $test_limits
   ROS_DEBUG_STREAM(*this);
   }
 
-  void missingParamsWarning(){
+  void missingParamsWarning() override{
     ROS_WARN_STREAM("[" << nodeName << "]\nThe following parameters do not have default values and need to be specified:\n"
 $non_default_params    );
   }
@@ -79,7 +79,7 @@ $non_default_params    );
 
 protected:
 
-  virtual std::ostream& print(std::ostream& os) const
+  virtual std::ostream& print(std::ostream& os) const override
   {
     os << "[" << nodeName << "]\nNode " << nodeName << " has the following parameters:\n"
 $string_representation;
@@ -90,10 +90,10 @@ $string_representation;
 
 using ${ClassName}ParametersPtr = std::shared_ptr<${ClassName}Parameters>;
 
-/// @todo Ensure safetyness.
+/// @todo Ensure safetyness ?
 ${ClassName}ParametersPtr castParametersPtr(rosparam_handler::ParametersPtr ptr)
 {
-  return std::static_pointer_cast<${ClassName}Parameters>(ptr);
+  return std::dynamic_pointer_cast<${ClassName}Parameters>(ptr);
 }
 
 } // namespace ${pkgname}
