@@ -65,6 +65,8 @@ env:
   matrix:
     - ROS_DISTRO=indigo
     - ROS_DISTRO=jade
+    - ROS_DISTRO=kinetic
+    - ROS_DISTRO=lunar
 ################################################################################
 
 # Install system dependencies, namely a very barebones ROS setup.
